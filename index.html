@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>md-edit</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <header>
+    <span class="logo">md-edit</span>
+    <div class="toolbar">
+      <button id="btn-bold" title="Bold">B</button>
+      <button id="btn-italic" title="Italic"><em>I</em></button>
+      <button id="btn-heading" title="Heading">H</button>
+      <button id="btn-link" title="Link">&#128279;</button>
+      <button id="btn-code" title="Code">&lt;/&gt;</button>
+      <span class="divider"></span>
+      <button id="btn-toggle-preview" title="Toggle preview">&#9654; Preview</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="editor-pane">
+      <textarea id="editor" spellcheck="false" placeholder="Start writing markdown..."></textarea>
+    </div>
+    <div id="preview-pane">
+      <div id="preview"></div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
