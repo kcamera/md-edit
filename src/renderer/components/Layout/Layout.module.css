@@ -1,0 +1,26 @@
+.layout {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  overflow: hidden;
+}
+
+.pane {
+  overflow: hidden;
+  min-width: 100px;
+}
+
+.resizeHandle {
+  width: 4px;
+  flex-shrink: 0;
+  background: var(--bg-resize);
+  cursor: col-resize;
+  transition: background 0.15s;
+  position: relative;
+  z-index: 1;
+}
+
+.resizeHandle:hover,
+.resizeHandle:active {
+  background: var(--bg-resize-hover);
+}

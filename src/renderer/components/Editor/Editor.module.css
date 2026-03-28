@@ -1,0 +1,24 @@
+.editorWrapper {
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.cmContainer {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+}
+
+.cmContainer .cm-editor {
+  height: 100%;
+}
+
+.cmContainer .cm-editor.cm-focused {
+  outline: none;
+}
+
+.cmContainer .cm-scroller {
+  overflow: auto;
+}
