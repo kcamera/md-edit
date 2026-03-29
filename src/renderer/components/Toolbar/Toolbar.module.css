@@ -44,8 +44,11 @@
 }
 
 .dirty {
-  margin-left: 4px;
-  color: var(--accent);
+  margin-left: 6px;
+  color: #e05252;
+  font-size: 18px;
+  line-height: 1;
+  vertical-align: middle;
 }
 
 .btn {
