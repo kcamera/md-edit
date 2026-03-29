@@ -19,6 +19,8 @@ const api: ElectronAPI = {
 
   getPathForFile: (file: File) => webUtils.getPathForFile(file),
 
+  setDirty: (value: boolean) => ipcRenderer.invoke('app:setDirty', value),
+
   onFileOpened: (cb) => {
     const handler = (_event: Electron.IpcRendererEvent, data: { filePath: string; content: string }) =>
       cb(data)

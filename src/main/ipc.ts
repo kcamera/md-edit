@@ -1,7 +1,7 @@
 import { ipcMain, dialog, BrowserWindow, nativeTheme } from 'electron'
 import fs from 'fs'
 import path from 'path'
-import { getMainWindow, openFile } from './index'
+import { getMainWindow, openFile, setDirty } from './index'
 
 export function registerIpcHandlers(): void {
   // Open file via native dialog
@@ -38,6 +38,11 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('app:setTitle', async (_event, title: string) => {
     const win = getMainWindow()
     if (win) win.setTitle(title)
+  })
+
+  // Track dirty state for quit dialog
+  ipcMain.handle('app:setDirty', (_event, value: boolean) => {
+    setDirty(value)
   })
 
   // Get system theme preference

@@ -65,16 +65,10 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFilePath, markdownContent, isDirty, theme])
 
-  // ── Auto-save (1s debounce) ──────────────────────────────────
+  // ── Sync dirty state to main process (for quit dialog) ──────
   useEffect(() => {
-    if (!isDirty || !activeFilePath) return
-    const timer = setTimeout(() => {
-      window.electronAPI.writeFile(activeFilePath, markdownContent).then(() => {
-        setIsDirty(false)
-      })
-    }, 1000)
-    return () => clearTimeout(timer)
-  }, [markdownContent, isDirty, activeFilePath])
+    window.electronAPI.setDirty(isDirty)
+  }, [isDirty])
 
   // ── Drag and drop ────────────────────────────────────────────
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, nativeTheme } from 'electron'
+import { app, BrowserWindow, nativeTheme, dialog } from 'electron'
 import { join } from 'path'
 import fs from 'fs'
 import { registerIpcHandlers } from './ipc'
@@ -6,6 +6,11 @@ import { buildMenu } from './menu'
 
 let mainWindow: BrowserWindow | null = null
 let pendingFilePath: string | null = null
+let isDirty = false
+
+export function setDirty(value: boolean): void {
+  isDirty = value
+}
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -26,6 +31,36 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow!.show()
+  })
+
+  mainWindow.on('close', async (event) => {
+    if (!isDirty) return
+
+    event.preventDefault()
+
+    const { response } = await dialog.showMessageBox(mainWindow!, {
+      type: 'warning',
+      message: 'You have unsaved changes.',
+      detail: 'Do you want to save before closing?',
+      buttons: ['Save', "Don't Save", 'Cancel'],
+      defaultId: 0,
+      cancelId: 2
+    })
+
+    if (response === 0) {
+      // Save — ask the renderer to save, then close
+      mainWindow!.webContents.send('menu:action', 'save')
+      // Give the renderer a moment to write, then close for real
+      setTimeout(() => {
+        isDirty = false
+        mainWindow?.close()
+      }, 500)
+    } else if (response === 1) {
+      // Don't Save — close without saving
+      isDirty = false
+      mainWindow!.close()
+    }
+    // response === 2 (Cancel): do nothing, window stays open
   })
 
   if (process.env['ELECTRON_RENDERER_URL']) {
