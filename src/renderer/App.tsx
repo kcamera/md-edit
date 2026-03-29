@@ -84,8 +84,7 @@ export default function App() {
       e.stopPropagation()
       const file = e.dataTransfer?.files[0]
       if (!file) return
-      // In Electron, File.path gives the absolute path
-      const filePath = (file as File & { path: string }).path
+      const filePath = window.electronAPI.getPathForFile(file)
       if (!filePath) return
       const content = await window.electronAPI.readFile(filePath)
       setActiveFilePath(filePath)

@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import type { ElectronAPI } from '../shared/types'
 
 const api: ElectronAPI = {
@@ -16,6 +16,8 @@ const api: ElectronAPI = {
     ipcRenderer.invoke('export:pdf', filePath, html),
 
   getTheme: () => ipcRenderer.invoke('app:getTheme'),
+
+  getPathForFile: (file: File) => webUtils.getPathForFile(file),
 
   onFileOpened: (cb) => {
     const handler = (_event: Electron.IpcRendererEvent, data: { filePath: string; content: string }) =>

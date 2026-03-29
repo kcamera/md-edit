@@ -10,6 +10,7 @@ export interface ElectronAPI {
 
   // App
   getTheme: () => Promise<'dark' | 'light'>
+  getPathForFile: (file: File) => string
 
   // Push events (main → renderer), return unsubscribe function
   onFileOpened: (cb: (data: { filePath: string; content: string }) => void) => () => void
