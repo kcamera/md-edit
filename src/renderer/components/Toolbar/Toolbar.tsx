@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import styles from './Toolbar.module.css'
 
+const isMac = navigator.userAgent.includes('Macintosh')
+
 interface ToolbarProps {
   filePath: string | null
   isDirty: boolean
@@ -38,7 +40,7 @@ export function Toolbar({
   }, [])
 
   return (
-    <div className={styles.toolbar}>
+    <div className={styles.toolbar} style={isMac ? { paddingLeft: 80 } : undefined}>
       <div className={styles.left}>
         <button className={styles.btn} onClick={onOpen} title="Open file (Cmd+O)">
           Open
