@@ -1,5 +1,7 @@
 import { app, BrowserWindow, nativeTheme, dialog } from 'electron'
 import { join } from 'path'
+
+app.setPath('userData', join(app.getPath('cache'), 'md-edit'))
 import fs from 'fs'
 import { registerIpcHandlers } from './ipc'
 import { buildMenu } from './menu'
