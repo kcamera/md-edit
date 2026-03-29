@@ -1,6 +1,6 @@
 import { useEffect, useRef, RefObject } from 'react'
 import { EditorView, keymap, lineNumbers, highlightActiveLine } from '@codemirror/view'
-import { EditorState, Compartment } from '@codemirror/state'
+import { EditorState, Compartment, Annotation } from '@codemirror/state'
 import { defaultKeymap, historyKeymap, history } from '@codemirror/commands'
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown'
 import { oneDark } from '@codemirror/theme-one-dark'
@@ -9,6 +9,7 @@ import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
 
 const themeCompartment = new Compartment()
 const docCompartment = new Compartment()
+const fileLoad = Annotation.define<boolean>()
 
 function getLightTheme() {
   return EditorView.theme(
@@ -99,7 +100,7 @@ export function useCodeMirror({
         syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
         themeCompartment.of(themeExt),
         EditorView.updateListener.of((update) => {
-          if (update.docChanged) {
+          if (update.docChanged && !update.transactions.some(tr => tr.annotation(fileLoad))) {
             onChange(update.state.doc.toString())
           }
         }),
@@ -132,7 +133,8 @@ export function useCodeMirror({
     lastFilePathRef.current = activeFilePath
 
     view.dispatch({
-      changes: { from: 0, to: view.state.doc.length, insert: content }
+      changes: { from: 0, to: view.state.doc.length, insert: content },
+      annotations: fileLoad.of(true)
     })
     view.scrollDOM.scrollTop = 0
   }, [activeFilePath, content])
