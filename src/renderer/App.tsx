@@ -21,14 +21,9 @@ export default function App() {
   useSyncScroll(editorScrollRef, previewScrollRef)
   const { exportHTML, exportPDF } = useExport()
 
-  // ── Initialize theme ────────────────────────────────────────
+  // ── Initialize theme from OS appearance ─────────────────────
   useEffect(() => {
-    const stored = localStorage.getItem('md-edit-theme') as Theme | null
-    if (stored) {
-      applyTheme(stored)
-    } else {
-      window.electronAPI.getTheme().then((t) => applyTheme(t))
-    }
+    window.electronAPI.getTheme().then((t) => applyTheme(t))
   }, [])
 
   function applyTheme(t: Theme) {
@@ -37,9 +32,7 @@ export default function App() {
   }
 
   function toggleTheme() {
-    const next: Theme = theme === 'dark' ? 'light' : 'dark'
-    applyTheme(next)
-    localStorage.setItem('md-edit-theme', next)
+    applyTheme(theme === 'dark' ? 'light' : 'dark')
   }
 
   // ── Listen for file:opened (from OS file association or CLI) ─
