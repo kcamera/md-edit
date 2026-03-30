@@ -1,5 +1,5 @@
-import { useState, useCallback, RefObject } from 'react'
-import { Editor } from '../Editor/Editor'
+import { useState, useCallback, RefObject, Ref } from 'react'
+import { Editor, EditorHandle } from '../Editor/Editor'
 import { Preview } from '../Preview/Preview'
 import { ResizeHandle } from './ResizeHandle'
 import styles from './Layout.module.css'
@@ -9,6 +9,8 @@ interface LayoutProps {
   activeFilePath: string | null
   theme: 'dark' | 'light'
   onContentChange: (value: string) => void
+  onUndoRedoChange: (canUndo: boolean, canRedo: boolean) => void
+  editorRef: Ref<EditorHandle>
   editorScrollRef: RefObject<HTMLDivElement | null>
   previewScrollRef: RefObject<HTMLDivElement | null>
 }
@@ -18,6 +20,8 @@ export function Layout({
   activeFilePath,
   theme,
   onContentChange,
+  onUndoRedoChange,
+  editorRef,
   editorScrollRef,
   previewScrollRef
 }: LayoutProps) {
@@ -35,10 +39,12 @@ export function Layout({
     <div className={styles.layout}>
       <div className={styles.pane} style={{ width: `${editorWidthPct}%` }}>
         <Editor
+          ref={editorRef}
           content={content}
           activeFilePath={activeFilePath}
           theme={theme}
           onChange={onContentChange}
+          onUndoRedoChange={onUndoRedoChange}
           scrollRef={editorScrollRef}
         />
       </div>
