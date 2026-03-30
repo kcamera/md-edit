@@ -35,6 +35,12 @@ function createWindow(): void {
     mainWindow!.show()
   })
 
+  // Linux/Windows only: start with menubar hidden, Alt key peeks it
+  if (process.platform !== 'darwin') {
+    mainWindow.setMenuBarVisibility(false)
+    mainWindow.setAutoHideMenuBar(true)
+  }
+
   mainWindow.on('close', async (event) => {
     if (!isDirty) return
 

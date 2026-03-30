@@ -6,9 +6,13 @@ const isMac = navigator.userAgent.includes('Macintosh')
 interface ToolbarProps {
   filePath: string | null
   isDirty: boolean
+  canUndo: boolean
+  canRedo: boolean
   theme: 'dark' | 'light'
   onOpen: () => void
   onSave: () => void
+  onUndo: () => void
+  onRedo: () => void
   onToggleTheme: () => void
   onExportHTML: () => void
   onExportPDF: () => void
@@ -17,9 +21,13 @@ interface ToolbarProps {
 export function Toolbar({
   filePath,
   isDirty,
+  canUndo,
+  canRedo,
   theme,
   onOpen,
   onSave,
+  onUndo,
+  onRedo,
   onToggleTheme,
   onExportHTML,
   onExportPDF
@@ -44,6 +52,12 @@ export function Toolbar({
       <div className={styles.left}>
         <button className={styles.btn} onClick={onOpen} title="Open file (Cmd+O)">
           Open
+        </button>
+        <button className={styles.btn} onClick={onUndo} disabled={!canUndo} title="Undo (Cmd+Z)">
+          ↩
+        </button>
+        <button className={styles.btn} onClick={onRedo} disabled={!canRedo} title="Redo (Cmd+Shift+Z)">
+          ↪
         </button>
       </div>
 

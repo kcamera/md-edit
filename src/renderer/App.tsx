@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import MarkdownIt from 'markdown-it'
 import { Toolbar } from './components/Toolbar/Toolbar'
 import { Layout } from './components/Layout/Layout'
+import { EditorHandle } from './components/Editor/Editor'
 import { useSyncScroll } from './hooks/useSyncScroll'
 import { useExport } from './hooks/useExport'
 
@@ -14,9 +15,17 @@ export default function App() {
   const [activeFilePath, setActiveFilePath] = useState<string | null>(null)
   const [markdownContent, setMarkdownContent] = useState<string>('')
   const [isDirty, setIsDirty] = useState(false)
+  const [canUndo, setCanUndo] = useState(false)
+  const [canRedo, setCanRedo] = useState(false)
 
+  const editorRef = useRef<EditorHandle>(null)
   const editorScrollRef = useRef<HTMLDivElement | null>(null)
   const previewScrollRef = useRef<HTMLDivElement | null>(null)
+
+  const handleUndoRedoChange = useCallback((u: boolean, r: boolean) => {
+    setCanUndo(u)
+    setCanRedo(r)
+  }, [])
 
   useSyncScroll(editorScrollRef, previewScrollRef)
   const { exportHTML, exportPDF } = useExport()
@@ -95,6 +104,9 @@ export default function App() {
     setIsDirty(false)
   }, [])
 
+  const handleUndo = useCallback(() => editorRef.current?.undo(), [])
+  const handleRedo = useCallback(() => editorRef.current?.redo(), [])
+
   const handleSave = useCallback(async () => {
     if (!activeFilePath || !isDirty) return
     await window.electronAPI.writeFile(activeFilePath, markdownContent)
@@ -130,9 +142,13 @@ export default function App() {
       <Toolbar
         filePath={activeFilePath}
         isDirty={isDirty}
+        canUndo={canUndo}
+        canRedo={canRedo}
         theme={theme}
         onOpen={handleOpen}
         onSave={handleSave}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
         onToggleTheme={toggleTheme}
         onExportHTML={handleExportHTML}
         onExportPDF={handleExportPDF}
@@ -142,6 +158,8 @@ export default function App() {
         activeFilePath={activeFilePath}
         theme={theme}
         onContentChange={handleContentChange}
+        onUndoRedoChange={handleUndoRedoChange}
+        editorRef={editorRef}
         editorScrollRef={editorScrollRef}
         previewScrollRef={previewScrollRef}
       />

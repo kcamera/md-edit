@@ -1,7 +1,7 @@
 import { useEffect, useRef, RefObject } from 'react'
 import { EditorView, keymap, lineNumbers, highlightActiveLine } from '@codemirror/view'
-import { EditorState, Compartment, Annotation } from '@codemirror/state'
-import { defaultKeymap, historyKeymap, history } from '@codemirror/commands'
+import { EditorState, Compartment, Annotation, Transaction } from '@codemirror/state'
+import { defaultKeymap, historyKeymap, history, undo, redo, undoDepth, redoDepth } from '@codemirror/commands'
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { languages } from '@codemirror/language-data'
@@ -69,6 +69,7 @@ interface UseCodeMirrorOptions {
   activeFilePath: string | null
   theme: 'dark' | 'light'
   onChange: (value: string) => void
+  onUndoRedoChange: (canUndo: boolean, canRedo: boolean) => void
   scrollRef: RefObject<HTMLDivElement | null>
 }
 
@@ -78,8 +79,11 @@ export function useCodeMirror({
   activeFilePath,
   theme,
   onChange,
+  onUndoRedoChange,
   scrollRef
-}: UseCodeMirrorOptions): void {
+}: UseCodeMirrorOptions): { triggerUndo: () => void; triggerRedo: () => void } {
+  const onUndoRedoChangeRef = useRef(onUndoRedoChange)
+  onUndoRedoChangeRef.current = onUndoRedoChange
   const viewRef = useRef<EditorView | null>(null)
   const lastFilePathRef = useRef<string | null>(null)
 
@@ -100,9 +104,14 @@ export function useCodeMirror({
         syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
         themeCompartment.of(themeExt),
         EditorView.updateListener.of((update) => {
-          if (update.docChanged && !update.transactions.some(tr => tr.annotation(fileLoad))) {
+          const isFileLoad = update.transactions.some(tr => tr.annotation(fileLoad))
+          if (update.docChanged && !isFileLoad) {
             onChange(update.state.doc.toString())
           }
+          onUndoRedoChangeRef.current(
+            undoDepth(update.state) > 0,
+            redoDepth(update.state) > 0
+          )
         }),
         EditorView.lineWrapping
       ]
@@ -121,7 +130,7 @@ export function useCodeMirror({
       view.destroy()
       viewRef.current = null
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // When a new file is opened, replace document content entirely
@@ -134,9 +143,10 @@ export function useCodeMirror({
 
     view.dispatch({
       changes: { from: 0, to: view.state.doc.length, insert: content },
-      annotations: fileLoad.of(true)
+      annotations: [fileLoad.of(true), Transaction.addToHistory.of(false)]
     })
     view.scrollDOM.scrollTop = 0
+    onUndoRedoChangeRef.current(false, false)
   }, [activeFilePath, content])
 
   // Swap theme via compartment (no editor recreation)
@@ -149,4 +159,9 @@ export function useCodeMirror({
       effects: themeCompartment.reconfigure(themeExt)
     })
   }, [theme])
+
+  return {
+    triggerUndo: () => { if (viewRef.current) undo(viewRef.current) },
+    triggerRedo: () => { if (viewRef.current) redo(viewRef.current) }
+  }
 }
